@@ -1,0 +1,40 @@
+{
+    "name": "ldl-framework/orchestrator",
+    "type": "library",
+    "description": "Orchestrates a Symfony container based project",
+    "keywords": [
+        "orchestrator",
+        "symfony",
+        "container",
+	"compiler"
+    ],
+    "homepage": "https://github.com/pthreat/ldl-orchestrator",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Federico Stange",
+            "email": "jpfstange@gmail.com"
+        },
+        {
+            "name": "Gonzalo Coda",
+            "email": "gonzalocoda@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "symfony/console": "~5.0",
+        "ldl-framework/file-finder": "^0.0.1",
+        "ldl-framework/file-common": "^0.0.1",
+        "symfony/dependency-injection": "^5.1",
+        "symfony/dotenv": "^5.1",
+        "symfony/config": "^5.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "LDL\\": "src/"
+        }
+    },
+    "bin": [
+        "bin/build"
+    ]
+}
