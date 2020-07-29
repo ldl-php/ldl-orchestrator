@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LDL\Orchestrator\Console;
 
 use LDL\FS\Finder\Adapter\LocalFileFinder;

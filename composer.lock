@@ -4,8 +4,117 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9cffe4e28f873836425b6cece482eb91",
+    "content-hash": "d5d7a3efecf4f8c7276263cdaa0ce2af",
     "packages": [
+        {
+            "name": "ldl-framework/container-builder",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pthreat/ldl-container-builder.git",
+                "reference": "d3b1dcc38dbd8f878e5d84beb2ebc262c62ce043"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pthreat/ldl-container-builder/zipball/d3b1dcc38dbd8f878e5d84beb2ebc262c62ce043",
+                "reference": "d3b1dcc38dbd8f878e5d84beb2ebc262c62ce043",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ldl-framework/file-common": "^0.0.1",
+                "ldl-framework/file-finder": "^0.0.1",
+                "php": ">=7.1",
+                "symfony/config": "^5.1",
+                "symfony/console": "~5.0",
+                "symfony/dependency-injection": "^5.1",
+                "symfony/yaml": "^5.1"
+            },
+            "bin": [
+                "bin/build"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "LDL\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Federico Stange",
+                    "email": "jpfstange@gmail.com"
+                },
+                {
+                    "name": "Gonzalo Coda",
+                    "email": "gonzalocoda@gmail.com"
+                }
+            ],
+            "description": "Combines different service files in different directories",
+            "homepage": "https://github.com/pthreat/ldl-container-builder",
+            "keywords": [
+                "compiler",
+                "dic",
+                "services",
+                "symfony"
+            ],
+            "time": "2020-07-28T14:27:21+00:00"
+        },
+        {
+            "name": "ldl-framework/env-builder",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pthreat/ldl-env-builder.git",
+                "reference": "703d5ba0b2eecbfb1a8768fab20f2890646fcd7f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pthreat/ldl-env-builder/zipball/703d5ba0b2eecbfb1a8768fab20f2890646fcd7f",
+                "reference": "703d5ba0b2eecbfb1a8768fab20f2890646fcd7f",
+                "shasum": ""
+            },
+            "require": {
+                "ldl-framework/file-finder": "^0.0.1",
+                "php": ">=7.1",
+                "symfony/console": "~5.0",
+                "symfony/string": "^5.1"
+            },
+            "bin": [
+                "bin/build"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "LDL\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Federico Stange",
+                    "email": "jpfstange@gmail.com"
+                },
+                {
+                    "name": "Gonzalo Coda",
+                    "email": "gonzalocoda@gmail.com"
+                }
+            ],
+            "description": "Env builder is a package which collects different env files within a specified directory and compiles them into one single .env file, useful when you have different .env files laying around in different folders and you want to have one single big file that you can load with Symfony's DotEnv loader or other Env loading library.",
+            "homepage": "https://github.com/pthreat/env-builder",
+            "keywords": [
+                "compiler",
+                "env",
+                "environment"
+            ],
+            "time": "2020-07-28T19:22:00+00:00"
+        },
         {
             "name": "ldl-framework/file-common",
             "version": "v0.0.1",
@@ -1131,16 +1240,83 @@
                 "utf8"
             ],
             "time": "2020-06-11T12:16:36+00:00"
+        },
+        {
+            "name": "symfony/yaml",
+            "version": "v5.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/yaml.git",
+                "reference": "ea342353a3ef4f453809acc4ebc55382231d4d23"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/ea342353a3ef4f453809acc4ebc55382231d4d23",
+                "reference": "ea342353a3ef4f453809acc4ebc55382231d4d23",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/deprecation-contracts": "^2.1",
+                "symfony/polyfill-ctype": "~1.8"
+            },
+            "conflict": {
+                "symfony/console": "<4.4"
+            },
+            "require-dev": {
+                "symfony/console": "^4.4|^5.0"
+            },
+            "suggest": {
+                "symfony/console": "For validating YAML files using the lint command"
+            },
+            "bin": [
+                "Resources/bin/yaml-lint"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Yaml\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Yaml Component",
+            "homepage": "https://symfony.com",
+            "time": "2020-05-20T17:43:50+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "ldl-framework/container-builder": 20,
+        "ldl-framework/env-builder": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.1"
+        "php": ">=7.1",
+        "ext-json": "*"
     },
     "platform-dev": []
 }
