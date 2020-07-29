@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LDL\Orchestrator\Builder\Config\Config\Exception;
 
-class BuilderConfigFileNotFoundException extends BuilderConfigException
+class UnknownOptionException extends BuilderConfigException
 {
 
 }

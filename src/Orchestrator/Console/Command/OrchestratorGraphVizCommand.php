@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace LDL\Orchestrator\Console\Command;
 
-use LDL\framework\console\helper\ProgressBarFactory;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -52,7 +54,7 @@ class OrchestratorGraphVizCommand extends AbstractOrchestratorCommand
 
             $output->writeln("\n<info>$title</info>\n");
 
-            $progressBar = ProgressBarFactory::build($output);
+            $progressBar = new ProgressBar($output);
             $progressBar->start();
 
             $dumper = new GraphvizDumper(
