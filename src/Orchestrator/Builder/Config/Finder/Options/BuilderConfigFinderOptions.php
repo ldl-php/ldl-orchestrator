@@ -19,11 +19,7 @@ class BuilderConfigFinderOptions
     /**
      * @var string
      */
-    private $file = '';
-
-    private function __construct()
-    {
-    }
+    private $file = 'orchestrator.json';
 
     public static function fromArray(array $options) : self
     {
@@ -81,14 +77,9 @@ class BuilderConfigFinderOptions
     /**
      * @param string $file
      * @return BuilderConfigFinderOptions
-     * @throws Exception\InvalidOptionException
      */
     private function setFile(string $file): BuilderConfigFinderOptions
     {
-        if('' === $file){
-            throw new Exception\InvalidOptionException('No file to find were given');
-        }
-
         $this->file = $file;
         return $this;
     }

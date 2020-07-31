@@ -11,12 +11,17 @@ class BuilderConfigWriterOptions implements OptionsInterface
     /**
      * @var string
      */
-    private $filename = '.orchestrator-config.json';
+    private $file = 'orchestrator';
 
     /**
      * @var bool
      */
-    private $force;
+    private $force = false;
+
+    /**
+     * @var string
+     */
+    private $filePerms = '0666';
 
     public static function fromArray(array $options) : self
     {
@@ -24,8 +29,9 @@ class BuilderConfigWriterOptions implements OptionsInterface
         $defaults = $instance->toArray();
         $merge = array_merge($defaults, $options);
 
-        return $instance->setFilename($merge['filename'])
-            ->setForce($merge['isForce']);
+        return $instance->setFile($merge['file'])
+            ->setFilePerms($merge['filePerms'])
+            ->setForce($merge['force']);
     }
 
     /**
@@ -47,18 +53,18 @@ class BuilderConfigWriterOptions implements OptionsInterface
     /**
      * @return string
      */
-    public function getFilename(): string
+    public function getFile(): string
     {
-        return $this->filename;
+        return $this->file;
     }
 
     /**
-     * @param string $filename
+     * @param string $file
      * @return BuilderConfigWriterOptions
      */
-    public function setFilename(string $filename): BuilderConfigWriterOptions
+    public function setFile(string $file): BuilderConfigWriterOptions
     {
-        $this->filename = $filename;
+        $this->file = $file;
         return $this;
     }
 
@@ -78,5 +84,45 @@ class BuilderConfigWriterOptions implements OptionsInterface
     {
         $this->force = $force;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilePerms(): string
+    {
+        return $this->filePerms;
+    }
+
+    /**
+     * @param string $filePerms
+     * @return BuilderConfigWriterOptions
+     */
+    private function setFilePerms(string $filePerms): BuilderConfigWriterOptions
+    {
+        $this->filePerms = $filePerms;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJsonFile() : string
+    {
+        return sprintf(
+            '%s.json',
+            $this->getFile()
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getLockFile() : string
+    {
+        return sprintf(
+            '%s.lock',
+            $this->getFile()
+        );
     }
 }

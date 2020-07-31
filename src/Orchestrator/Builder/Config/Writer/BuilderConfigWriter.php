@@ -1,10 +1,6 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace LDL\Orchestrator\Builder\Config\Writer;
-
-use LDL\Orchestrator\Builder\Config\Config\BuilderConfig;
 
 class BuilderConfigWriter implements BuilderConfigWriterInterface
 {
@@ -21,18 +17,20 @@ class BuilderConfigWriter implements BuilderConfigWriterInterface
     /**
      * {@inheritdoc}
      */
-    public function write(BuilderConfig $config) : void
+    public function write(string $content, bool $isLock = false) : void
     {
-        if(false === $this->options->isForce() && true === file_exists($this->options->getFilename())){
+        $file = false === $isLock ? $this->options->getJsonFile() : $this->options->getLockFile();
+
+        if(false === $this->options->isForce() && true === file_exists($file)){
             $msg = sprintf(
                 'File: %s already exists!. Force it to overwrite',
-                $this->options->getFilename()
+                $file
             );
 
             throw new Exception\ConfigExistsException($msg);
         }
 
-        file_put_contents($this->options->getFilename(), json_encode($config->toArray(),\JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR));
+        file_put_contents($file, $content);
     }
 
     /**

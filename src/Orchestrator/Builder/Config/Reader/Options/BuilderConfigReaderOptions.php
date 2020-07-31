@@ -9,9 +9,9 @@ use LDL\Orchestrator\Builder\Config\Interfaces\OptionsInterface;
 class BuilderConfigReaderOptions implements OptionsInterface
 {
     /**
-     * @var string
+     * @var bool
      */
-    private $file = '.orchestrator-config.json';
+    private $ignoreErrors = false;
 
     private function __construct()
     {
@@ -23,7 +23,7 @@ class BuilderConfigReaderOptions implements OptionsInterface
         $defaults = $instance->toArray();
         $merge = array_merge($defaults, $options);
 
-        return $instance->setFile($merge['file']);
+        return $instance->setIgnoreErrors($merge['ignoreErrors']);
     }
 
     /**
@@ -43,25 +43,20 @@ class BuilderConfigReaderOptions implements OptionsInterface
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function getFile(): string
+    public function ignoreErrors(): bool
     {
-        return $this->file;
+        return $this->ignoreErrors;
     }
 
     /**
-     * @param string $file
+     * @param bool $ignoreErrors
      * @return BuilderConfigReaderOptions
-     * @throws Exception\InvalidOptionException
      */
-    private function setFile(string $file): BuilderConfigReaderOptions
+    private function setIgnoreErrors(bool $ignoreErrors): BuilderConfigReaderOptions
     {
-        if('' === $file){
-            throw new Exception\InvalidOptionException('No file to find were given');
-        }
-
-        $this->file = $file;
+        $this->ignoreErrors = $ignoreErrors;
         return $this;
     }
 }

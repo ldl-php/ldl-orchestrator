@@ -1,11 +1,13 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace LDL\Orchestrator\Console;
 
+use LDL\DependencyInjection\Console\Command\ContainerGraphVizCommand;
+use LDL\DependencyInjection\Console\Command\PrintCompilerPassFilesCommand;
+use LDL\DependencyInjection\Console\Command\PrintServiceFilesCommand;
+use LDL\Env\Console\Command\PrintFilesCommand as PrintEnvFilesCommand;
 use LDL\FS\Finder\Adapter\LocalFileFinder;
-use LDL\FsUtil\util\Fs;
+use LDL\FS\Util\Path;
 use Symfony\Component\Console\Application as SymfonyApplication;
 
 class Console extends SymfonyApplication
@@ -21,7 +23,7 @@ BANNER;
         $commands = LocalFileFinder::findRegex(
             '^.*\.php$',
             [
-                Fs::mkPath(__DIR__, 'Command')
+                Path::make(__DIR__, 'Command')
             ]
         );
 
@@ -43,6 +45,7 @@ BANNER;
             if(0 === $key){
                 continue;
             }
+
             require $commandFile;
 
             $class = get_declared_classes();
@@ -50,5 +53,10 @@ BANNER;
 
             $this->add(new $class());
         }
+
+        $this->add(new PrintEnvFilesCommand());
+        $this->add(new PrintCompilerPassFilesCommand());
+        $this->add(new PrintServiceFilesCommand());
+        $this->add(new ContainerGraphVizCommand());
     }
 }

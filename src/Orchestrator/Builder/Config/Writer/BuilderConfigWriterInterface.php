@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace LDL\Orchestrator\Builder\Config\Writer;
 
-use LDL\Orchestrator\Builder\Config\Config\BuilderConfig;
-
 interface BuilderConfigWriterInterface
 {
     /**
      * Write builder configuration
      *
-     * @param BuilderConfig $config
+     * @param string $content
+     * @param bool $isLock
      * @throws Exception\ConfigExistsException
      */
-    public function write(BuilderConfig $config) : void;
+    public function write(string $content, bool $isLock = true) : void;
 
     /**
      * @return Options\BuilderConfigWriterOptions

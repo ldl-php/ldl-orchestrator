@@ -1,64 +1,65 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace LDL\Orchestrator\Builder\Config\Config;
 
-class BuilderConfig
+use LDL\Orchestrator\Builder\Config\Interfaces\OptionsInterface;
+
+class BuilderConfig implements OptionsInterface
 {
     /**
      * @var string
      */
-    private $description;
-
-    /**
-     * @var string
-     */
-    private $filename;
+    private $description = '*** DO NOT MODIFY THIS FILE MANUALLY ***';
 
     /**
      * @var array
      */
-    private $envFinder;
+    private $orchestratorConfig = [];
 
     /**
      * @var array
      */
-    private $envCompiler;
+    private $envConfig = [];
 
     /**
      * @var array
      */
-    private $envWriter;
-
-    /**
-     * @var array
-     */
-    private $containerFinder;
-
-    /**
-     * @var array
-     */
-    private $containerCompiler;
+    private $containerConfig = [];
 
     public static function fromArray(array $options) : self
     {
         $instance = new static();
         $defaults = $instance->toArray();
-        $merge = array_merge($defaults, $options);
+        $merge = array_replace_recursive($defaults, $options);
 
         return $instance->setDescription($merge['description'])
-            ->setFilename($merge['filename'])
-            ->setEnvFinder($merge['envFinder'])
-            ->setEnvCompiler($merge['envCompiler'])
-            ->setEnvWriter($merge['envWriter'])
-            ->setContainerFinder($merge['containerFinder'])
-            ->setContainerCompiler($merge['containerCompiler']);
+            ->setOrchestratorConfig($merge['orchestrator'])
+            ->setEnvConfig($merge['env'])
+            ->setContainerConfig($merge['container']);
     }
 
-    public function toArray(): array
+    public function toArray(array $exclude = []): array
     {
-        return get_object_vars($this);
+        $return = [
+            'description' => $this->getDescription(),
+            'orchestrator' => $this->getOrchestratorConfig(),
+            'env' => $this->getEnvConfig(),
+            'container' => $this->getContainerConfig()
+        ];
+
+        foreach ($return as $key => $value) {
+            if (in_array($key, $exclude, true)) {
+                unset($return[$key]);
+                continue;
+            }
+        }
+
+        return $return;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toArray();
     }
 
     /**
@@ -80,111 +81,56 @@ class BuilderConfig
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getFilename(): string
+    public function getOrchestratorConfig(): array
     {
-        return $this->filename;
+        return $this->orchestratorConfig;
     }
 
     /**
-     * @param string $filename
+     * @param array $orchestratorConfig
      * @return BuilderConfig
      */
-    private function setFilename(string $filename): BuilderConfig
+    private function setOrchestratorConfig(array $orchestratorConfig): BuilderConfig
     {
-        $this->filename = $filename;
+        $this->orchestratorConfig = $orchestratorConfig;
         return $this;
     }
 
     /**
      * @return array
      */
-    public function getEnvFinder(): array
+    public function getEnvConfig(): array
     {
-        return $this->envFinder;
+        return $this->envConfig;
     }
 
     /**
-     * @param array $envFinder
+     * @param array $envConfig
      * @return BuilderConfig
      */
-    private function setEnvFinder(array $envFinder): BuilderConfig
+    private function setEnvConfig(array $envConfig): BuilderConfig
     {
-        $this->envFinder = $envFinder;
+        $this->envConfig = $envConfig;
         return $this;
     }
 
     /**
      * @return array
      */
-    public function getEnvCompiler(): array
+    public function getContainerConfig(): array
     {
-        return $this->envCompiler;
+        return $this->containerConfig;
     }
 
     /**
-     * @param array $envCompiler
+     * @param array $containerConfig
      * @return BuilderConfig
      */
-    private function setEnvCompiler(array $envCompiler): BuilderConfig
+    private function setContainerConfig(array $containerConfig): BuilderConfig
     {
-        $this->envCompiler = $envCompiler;
+        $this->containerConfig = $containerConfig;
         return $this;
     }
-
-    /**
-     * @return array
-     */
-    public function getEnvWriter(): array
-    {
-        return $this->envWriter;
-    }
-
-    /**
-     * @param array $envWriter
-     * @return BuilderConfig
-     */
-    private function setEnvWriter(array $envWriter): BuilderConfig
-    {
-        $this->envWriter = $envWriter;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getContainerFinder(): array
-    {
-        return $this->containerFinder;
-    }
-
-    /**
-     * @param array $containerFinder
-     * @return BuilderConfig
-     */
-    private function setContainerFinder(array $containerFinder): BuilderConfig
-    {
-        $this->containerFinder = $containerFinder;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getContainerCompiler(): array
-    {
-        return $this->containerCompiler;
-    }
-
-    /**
-     * @param array $containerCompiler
-     * @return BuilderConfig
-     */
-    private function setContainerCompiler(array $containerCompiler): BuilderConfig
-    {
-        $this->containerCompiler = $containerCompiler;
-        return $this;
-    }
-
 }
