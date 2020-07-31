@@ -27,16 +27,15 @@ class BuilderConfigFinder implements BuilderConfigFinderInterface
         $options =  $this->options;
 
         $files = LocalFileFinder::find(
-            $this->options->getDirectories(),
-            [$this->options->getFile()]
+            $options->getDirectories(),
+            [$options->getFile()]
         );
 
         /**
          * @var GenericFileType $file
          */
         foreach($files as $key=>$file){
-            if(in_array($file->getPath(), $this->options->getExcludedDirectories(), true)){
-                unset($files[$key]);
+            if(in_array($file->getPath(), $options->getExcludedDirectories(), true)){
                 continue;
             }
 

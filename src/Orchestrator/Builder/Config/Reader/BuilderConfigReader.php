@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LDL\Orchestrator\Builder\Config\Reader;
 
+use LDL\FS\Type\AbstractFileType;
 use LDL\Orchestrator\Builder\Config\Config\BuilderConfig;
 
 class BuilderConfigReader implements BuilderConfigReaderInterface
@@ -21,19 +22,21 @@ class BuilderConfigReader implements BuilderConfigReaderInterface
     /**
      * {@inheritdoc}
      */
-    public function read(): BuilderConfig
+    public function read(AbstractFileType $file): BuilderConfig
     {
-        $file = $this->options->getFile();
+        if(!$this->options->ignoreErrors() && !$file->isReadable()){
+            $msg = sprintf(
+                'Could not read file "%s", file is not readable',
+                $file->getRealPath()
+            );
 
-        if(!is_readable($file)){
-            $msg = "Could not read file {$file}";
             throw new Exception\BuilderConfigReaderPermissionException($msg);
         }
 
         try {
             $config = json_decode(
-                \file_get_contents($file),
-                false,
+                \file_get_contents($file->getRealPath()),
+                true,
                 512,
                 \JSON_THROW_ON_ERROR
             );

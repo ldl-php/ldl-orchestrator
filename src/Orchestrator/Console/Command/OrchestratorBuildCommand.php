@@ -1,14 +1,15 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace LDL\Orchestrator\Console\Command;
 
-use LDL\FsUtil\util\Fs;
-use LDL\Orchestrator\Builder\Exception\OrchestratorContainerExistsException;
-use Symfony\Component\Console\Input\InputArgument;
+use LDL\DependencyInjection\Container\Config\ContainerConfigFactory;
+use LDL\DependencyInjection\Container\Writer\ContainerFileWriter;
+use LDL\Env\Config\EnvConfigFactory;
+use LDL\Env\Writer\EnvFileWriter;
+use LDL\Orchestrator\Builder\Builder;
+use LDL\Orchestrator\Builder\Config\Config\BuilderConfig;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class OrchestratorBuildCommand extends AbstractOrchestratorCommand
@@ -19,37 +20,8 @@ class OrchestratorBuildCommand extends AbstractOrchestratorCommand
     {
         parent::configure();
 
-        $cwd = getcwd();
-        $outputFile = Fs::mkPath($cwd,'cache', 'container.php');
-
         $this->setName(self::COMMAND_NAME)
-            ->setDescription('Builds container dependencies')
-            ->addArgument(
-                'output-file',
-                InputArgument::OPTIONAL,
-                "Specify output file, default: \"$outputFile\"",
-                $outputFile
-            )
-            ->addOption(
-                'dev-mode',
-                'm',
-                InputOption::VALUE_OPTIONAL,
-                'Build container in for development or production',
-                'prod'
-            )
-            ->addOption(
-                'force-rebuild',
-                'f',
-                InputOption::VALUE_NONE,
-                'Rebuilds the container even if a cached container is found'
-            )
-            ->addOption(
-                'file-permissions',
-                'c',
-                InputOption::VALUE_OPTIONAL,
-                'Sets file permissions on generated container file',
-                '0666'
-            );
+            ->setDescription('Builds container dependencies');
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
@@ -76,41 +48,53 @@ class OrchestratorBuildCommand extends AbstractOrchestratorCommand
 
         try {
 
-            $isDevelopment = in_array(
-                $input->getOption('dev-mode'),
-                [
-                    'd',
-                    'dev',
-                    'development',
-                    'develop'
-                ],
-                true
+            $title = sprintf(
+                '[ Building container in "%s" mode ]',
+                $this->orchestrator->isDevMode() ? 'DEV' : 'PROD'
             );
-
-            $title = sprintf('[ Building container in "%s" mode ]', $isDevelopment ? 'DEV' : 'PROD');
 
             $output->writeln("\n<info>$title</info>\n");
 
-            $progressBar = ProgressBarFactory::build($output);
+            $progressBar = new ProgressBar($output);
             $progressBar->start();
 
-            $this->orchestrator->write(
-                $this->orchestrator->compile(
-                    $isDevelopment,
-                    'ldl.xml',
-                    $progressBar
-                ),
-                $input->getArgument('output-file'),
-                intval($input->getOption('file-permissions'), 8),
-                (bool)$input->getOption('force-rebuild')
+            $envWriter = new EnvFileWriter();
+            $containerWriter = new ContainerFileWriter();
+
+            $envConfig = EnvConfigFactory::factory(
+                $this->orchestrator->getEnvBuilder()->getFinder(),
+                $this->orchestrator->getEnvBuilder()->getCompiler(),
+                $envWriter
             );
 
+            $containerConfig = ContainerConfigFactory::factory(
+                $this->orchestrator->getLDLContainerBuilder()->getServiceFinder(),
+                $this->orchestrator->getLDLContainerBuilder()->getServiceCompiler(),
+                $this->orchestrator->getLDLContainerBuilder()->getServiceReader(),
+                $this->orchestrator->getLDLContainerBuilder()->getCompilerPassFinder(),
+                $this->orchestrator->getLDLContainerBuilder()->getCompilerPassReader(),
+                $containerWriter
+            );
+
+            $orchestratorConfig = $this->orchestrator->getConfig();
+
+            $orchestratorJson = $this->orchestrator->compileJSON(
+                $orchestratorConfig,
+                $envConfig,
+                $containerConfig
+            );
+
+            $orchestratorLock = $this->orchestrator->compileLock($orchestratorJson);
+
+            $jsonConfig = json_encode($orchestratorJson->toArray(), \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES);
+            $lockConfig = json_encode($orchestratorLock->toArray(), \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES);
+
+            if(false === $this->orchestrator->isDevMode()){
+                $this->orchestrator->getBuilderConfigWriter()->write($jsonConfig);
+                $this->orchestrator->getBuilderConfigWriter()->write($lockConfig, false);
+            }
+
             $output->writeln("");
-
-        }catch(OrchestratorContainerExistsException $e){
-
-            $output->writeln("\n<error>{$e->getMessage()}</error>\n");
-            $output->writeln('<info>If this is wanted, please use the force-rebuild option</info>');
 
         }catch(\Exception $e){
 
@@ -128,7 +112,7 @@ class OrchestratorBuildCommand extends AbstractOrchestratorCommand
         $output->writeln("\n<info>Took: $total seconds</info>");
     }
 
-    public function getOrchestrator() : ?Orchestrator
+    public function getOrchestrator() : ?Builder
     {
         return $this->orchestrator;
     }

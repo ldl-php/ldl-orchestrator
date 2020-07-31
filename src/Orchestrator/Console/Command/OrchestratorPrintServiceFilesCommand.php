@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LDL\Orchestrator\Console\Command;
 
+use LDL\DependencyInjection\Service\Finder\Exception\NoFilesFoundException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo as FileInfo;
@@ -41,13 +42,20 @@ class OrchestratorPrintServiceFilesCommand extends AbstractOrchestratorCommand
     ) : void
     {
         $total = 0;
-
         $output->writeln("<info>[ Service files list ]</info>\n");
+
+        try{
+            $files = $this->orchestrator->getLDLContainerBuilder()->getServiceFinder()->find();
+        }catch(NoFilesFoundException $e){
+            $output->writeln("\n<error>{$e->getMessage()}</error>\n");
+
+            return;
+        }
 
         /**
          * @var FileInfo $file
          */
-        foreach($this->orchestrator->findServiceFiles() as $file){
+        foreach($files as $file){
             $total++;
             $output->writeln($file->getRealPath());
         }

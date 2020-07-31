@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace LDL\Orchestrator\Console\Command;
 
+use LDL\DependencyInjection\CompilerPass\Finder\Exception\NoFilesFoundException;
+use LDL\Orchestrator\Builder\Builder;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo as FileInfo;
 
 class OrchestratorPrintCompilerPassesCommand extends AbstractOrchestratorCommand
 {
-    public const COMMAND_NAME = 'pass:print';
+    public const COMMAND_NAME = 'cpass:print';
 
     public function configure() : void
     {
@@ -42,18 +44,27 @@ class OrchestratorPrintCompilerPassesCommand extends AbstractOrchestratorCommand
         $total = 0;
         $output->writeln("<info>[ Compiler pass file list ]</info>\n");
 
-        /**
-         * @var FileInfo $compilerPass
-         */
-        foreach($this->orchestrator->findCompilerPasses() as $compilerPass){
-            $total++;
-            $output->writeln($compilerPass->getRealPath());
+        try{
+            $files = $this->orchestrator->getLDLContainerBuilder()->getCompilerPassFinder()->find();
+        }catch(NoFilesFoundException $e){
+            $output->writeln("\n<error>{$e->getMessage()}</error>\n");
+
+            return;
         }
 
-        $output->writeln("\n<info>Total compiler passes: $total</info>");
+
+        /**
+         * @var FileInfo $file
+         */
+        foreach($files as $file){
+            $total++;
+            $output->writeln($file->getRealPath());
+        }
+
+        $output->writeln("\n<info>Total files: $total</info>");
     }
 
-    public function getOrchestrator() : ?Orchestrator
+    public function getOrchestrator() : ?Builder
     {
         return $this->orchestrator;
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace LDL\Orchestrator\Console;
 
 use LDL\FS\Finder\Adapter\LocalFileFinder;
-use LDL\FsUtil\util\Fs;
+use LDL\FS\Util\Path;
 use Symfony\Component\Console\Application as SymfonyApplication;
 
 class Console extends SymfonyApplication
@@ -21,7 +21,7 @@ BANNER;
         $commands = LocalFileFinder::findRegex(
             '^.*\.php$',
             [
-                Fs::mkPath(__DIR__, 'Command')
+                Path::make(__DIR__, 'Command')
             ]
         );
 
