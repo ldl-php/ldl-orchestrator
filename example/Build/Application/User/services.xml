@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container
+		xmlns="http://symfony.com/schema/dic/services"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
+>
+	<parameters>
+		<parameter key="app.user.url">%env(USER_APPLICATION_URL)%</parameter>
+	</parameters>
+
+	<services>
+		<service
+				id="LDL.example.application.user"
+				class="LDL\Example\Build\Application\User\Application"
+				lazy="true"
+				public="true"
+		>
+			<argument type="string">%app.user.url%</argument>
+
+			<tag name="example.application" />
+		</service>
+
+		<service
+				id="LDL.example.application.admin"
+				class="LDL\Example\Build\Application\Admin\Application"
+				lazy="true"
+				public="true"
+		>
+			<argument type="string">admin</argument>
+
+			<tag name="example.application" />
+		</service>
+
+	</services>
+
+</container>

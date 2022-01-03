@@ -14,20 +14,12 @@
         {
             "name": "Federico Stange",
             "email": "jpfstange@gmail.com"
-        },
-        {
-            "name": "Gonzalo Coda",
-            "email": "gonzalocoda@gmail.com"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php": ">=7.1",
-        "symfony/console": "~5.0",
-        "ldl-framework/file-finder": "^0.0.1",
-        "ldl-framework/file-common": "^0.0.1",
-        "symfony/dependency-injection": "^5.1",
-        "symfony/dotenv": "^5.1",
-        "symfony/config": "^5.1",
         "ldl-framework/container-builder": "dev-master",
         "ldl-framework/env-builder": "dev-master",
         "ext-json": "*"

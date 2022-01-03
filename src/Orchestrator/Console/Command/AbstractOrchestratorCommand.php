@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace LDL\Orchestrator\Console\Command;
 
+use LDL\Orchestrator\Builder\OrchestratorBuilder;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
-use LDL\Orchestrator\Builder\Builder;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,7 +24,7 @@ abstract class AbstractOrchestratorCommand extends SymfonyCommand
     protected const DEFAULT_SCAN_DIRECTORIES = 'framework, application, plugin';
     protected const DEFAULT_SCAN_FILES = 'services.xml, guards.xml, events.xml, commands.xml, loggers.xml, controllers.xml';
 
-    public function configure() : void
+    public function configure(): void
     {
         $cwd = getcwd();
 
@@ -54,15 +54,14 @@ abstract class AbstractOrchestratorCommand extends SymfonyCommand
                 ),
                 self::DEFAULT_SCAN_FILES
             );
-
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->orchestrator = Builder::factory(
+        $this->orchestrator = OrchestratorBuilder::factory(
             $input->getArgument('project-dir'),
-            array_map('trim', explode(',' , $input->getOption('scan-directories'))),
-            array_map('trim', explode(',' , $input->getOption('scan-files')))
+            array_map('trim', explode(',', $input->getOption('scan-directories'))),
+            array_map('trim', explode(',', $input->getOption('scan-files')))
         );
     }
 }
