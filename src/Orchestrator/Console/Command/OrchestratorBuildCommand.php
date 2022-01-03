@@ -4,133 +4,175 @@ declare(strict_types=1);
 
 namespace LDL\Orchestrator\Console\Command;
 
-use LDL\FsUtil\util\Fs;
-use LDL\Orchestrator\Builder\Exception\OrchestratorContainerExistsException;
+use LDL\DependencyInjection\CompilerPass\Compiler\CompilerPassCompiler;
+use LDL\DependencyInjection\CompilerPass\Finder\CompilerPassFileFinder;
+use LDL\DependencyInjection\CompilerPass\Finder\Options\CompilerPassFileFinderOptions;
+use LDL\DependencyInjection\Container\Builder\LDLContainerBuilder;
+use LDL\DependencyInjection\Service\Compiler\ServiceCompiler;
+use LDL\DependencyInjection\Service\File\Finder\Options\ServiceFileFinderOptions;
+use LDL\DependencyInjection\Service\File\Finder\ServiceFileFinder;
+use LDL\Env\Builder\EnvBuilder;
+use LDL\Env\File\Finder\EnvFileFinder;
+use LDL\Env\File\Finder\Options\EnvFileFinderOptions;
+use LDL\Env\Util\Compiler\EnvCompiler;
+use LDL\Env\Util\File\Parser\EnvFileParser;
+use LDL\File\Directory;
+use LDL\File\Exception\FileExistsException;
+use LDL\File\File;
+use LDL\File\Helper\FilePathHelper;
+use LDL\Framework\Base\Collection\CallableCollection;
+use LDL\Orchestrator\Builder\OrchestratorBuilder;
+use LDL\Orchestrator\Builder\OrchestratorBuilderInterface;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class OrchestratorBuildCommand extends AbstractOrchestratorCommand
+class OrchestratorBuildCommand extends Command
 {
-    public const COMMAND_NAME = 'build';
+    public const COMMAND_NAME = 'ldl:orchestrator:build';
 
-    public function configure() : void
+    /**
+     * @var OrchestratorBuilderInterface
+     */
+    private $orchestratorBuilder;
+
+    public function __construct(
+        ?string $name = null,
+        OrchestratorBuilderInterface $orchestratorBuilder = null
+    ) {
+        parent::__construct($name ?? self::COMMAND_NAME);
+        $this->orchestratorBuilder = $orchestratorBuilder;
+    }
+
+    public function configure(): void
     {
         parent::configure();
 
-        $cwd = getcwd();
-        $outputFile = Fs::mkPath($cwd,'cache', 'container.php');
-
-        $this->setName(self::COMMAND_NAME)
-            ->setDescription('Builds container dependencies')
-            ->addArgument(
-                'output-file',
-                InputArgument::OPTIONAL,
-                "Specify output file, default: \"$outputFile\"",
-                $outputFile
-            )
-            ->addOption(
-                'dev-mode',
-                'm',
-                InputOption::VALUE_OPTIONAL,
-                'Build container in for development or production',
-                'prod'
-            )
-            ->addOption(
-                'force-rebuild',
-                'f',
-                InputOption::VALUE_NONE,
-                'Rebuilds the container even if a cached container is found'
-            )
-            ->addOption(
-                'file-permissions',
-                'c',
-                InputOption::VALUE_OPTIONAL,
-                'Sets file permissions on generated container file',
-                '0666'
-            );
+        $this->setDefinition(
+            new InputDefinition([
+                new InputArgument(
+                    'output-directory',
+                    InputArgument::REQUIRED
+                ),
+                new InputArgument(
+                    'directories',
+                    InputArgument::REQUIRED,
+                    'Directories to search'
+                ),
+                new InputOption(
+                    'dump-options',
+                    'c',
+                    InputOption::VALUE_REQUIRED,
+                    'Path to JSON file containing container options'
+                ),
+                new InputOption(
+                    'force',
+                    'f',
+                    InputOption::VALUE_OPTIONAL,
+                    'Force creation (will destroy anything previously created)',
+                    false
+                ),
+            ])
+        );
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        try {
-            parent::execute($input, $output);
-
-            $this->build($input, $output);
-
-            return parent::EXIT_SUCCESS;
-
-        }catch(\Exception $e){
-            $output->writeln("<error>{$e->getMessage()}</error>");
-            return parent::EXIT_ERROR;
-        }
-    }
-
-    private function build(
-        InputInterface $input,
-        OutputInterface $output
-    ) : void
-    {
         $start = hrtime(true);
 
-        try {
+        $outputDirectory = $input->getArgument('output-directory');
 
-            $isDevelopment = in_array(
-                $input->getOption('dev-mode'),
-                [
-                    'd',
-                    'dev',
-                    'development',
-                    'develop'
-                ],
-                true
-            );
+        $pattern = sprintf('#^%s#', \DIRECTORY_SEPARATOR);
 
-            $title = sprintf('[ Building container in "%s" mode ]', $isDevelopment ? 'DEV' : 'PROD');
+        $outputDirectory = preg_match($pattern, $outputDirectory) ? $outputDirectory : FilePathHelper::createAbsolutePath(getcwd(), $outputDirectory);
 
-            $output->writeln("\n<info>$title</info>\n");
+        $options = [];
 
-            $progressBar = ProgressBarFactory::build($output);
-            $progressBar->start();
-
-            $this->orchestrator->write(
-                $this->orchestrator->compile(
-                    $isDevelopment,
-                    'ldl.xml',
-                    $progressBar
-                ),
-                $input->getArgument('output-file'),
-                intval($input->getOption('file-permissions'), 8),
-                (bool)$input->getOption('force-rebuild')
-            );
-
-            $output->writeln("");
-
-        }catch(OrchestratorContainerExistsException $e){
-
-            $output->writeln("\n<error>{$e->getMessage()}</error>\n");
-            $output->writeln('<info>If this is wanted, please use the force-rebuild option</info>');
-
-        }catch(\Exception $e){
-
-            $output->writeln("\n<error>Build failed!</error>\n");
-            $output->writeln("\n<error>{$e->getMessage()}</error>\n");
-
-            return;
+        if ($input->getOption('dump-options')) {
+            $options = new File($input->getOption('dump-options'));
+            $options = json_decode($options->getLinesAsString(), true, 512, JSON_THROW_ON_ERROR);
         }
 
-        $progressBar->finish();
+        try {
+            $directory = Directory::create(
+                $outputDirectory,
+                0755,
+                (bool) $input->getOption('force')
+            );
+        } catch (FileExistsException $e) {
+            $output->writeln("<fg=red>{$e->getMessage()}, use -f option if you want to overwrite</>");
+
+            return self::FAILURE;
+        }
+
+        $envFileFinder = new EnvFileFinder(
+            EnvFileFinderOptions::fromArray([
+                'directories' => explode(',', $input->getArgument('directories')),
+            ]),
+            new CallableCollection([
+                static function ($file) use ($output) {
+                    $output->writeln("Found service file $file ...");
+                },
+            ])
+        );
+
+        $serviceFileFinder = new ServiceFileFinder(
+            ServiceFileFinderOptions::fromArray([
+                'directories' => explode(',', $input->getArgument('directories')),
+            ]),
+            new CallableCollection([
+                static function ($file) use ($output) {
+                    $output->writeln("Found service file $file ...");
+                },
+            ])
+        );
+
+        $compilerPassFileFinder = new CompilerPassFileFinder(
+            CompilerPassFileFinderOptions::fromArray([
+                'directories' => explode(',', $input->getArgument('directories')),
+            ]),
+            new CallableCollection([
+                static function ($file) use ($output) {
+                    $output->writeln("Found compiler pass file $file ...");
+                },
+            ])
+        );
+
+        $envBuilder = new EnvBuilder(
+            new EnvFileParser(null, null, null),
+            new EnvCompiler()
+        );
+
+        $containerBuilder = new LDLContainerBuilder(
+            new ServiceCompiler(),
+            new CompilerPassCompiler()
+        );
+
+        $builder = new OrchestratorBuilder(
+            $envFileFinder,
+            $serviceFileFinder,
+            $compilerPassFileFinder,
+            $envBuilder,
+            $containerBuilder
+        );
+
+        $config = $builder->build($directory, $options);
+
+        $directory->mkfile(
+            'ldl-orchestrator-config.json',
+            json_encode($config),
+            0644,
+            (bool) $input->getOption('force')
+        );
 
         $end = hrtime(true);
-        $total = round((($end - $start) / 1e+6) / 1000,2);
+        $total = round((($end - $start) / 1e+6) / 1000, 2);
 
         $output->writeln("\n<info>Took: $total seconds</info>");
-    }
 
-    public function getOrchestrator() : ?Orchestrator
-    {
-        return $this->orchestrator;
+        return self::SUCCESS;
     }
-
 }
