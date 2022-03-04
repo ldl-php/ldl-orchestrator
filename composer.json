@@ -30,6 +30,6 @@
         }
     },
     "bin": [
-        "bin/build"
+        "bin/orchestrator"
     ]
 }
