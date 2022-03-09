@@ -10,8 +10,10 @@ use LDL\DependencyInjection\Service\File\Finder\ServiceFileFinderInterface;
 use LDL\Env\Builder\EnvBuilderInterface;
 use LDL\Env\File\Finder\EnvFileFinderInterface;
 use LDL\File\Collection\ReadableFileCollection;
-use LDL\File\Directory;
+use LDL\File\Contracts\DirectoryInterface;
 use LDL\File\File;
+use LDL\Orchestrator\Builder\Config\OrchestratorBuilderConfig;
+use LDL\Orchestrator\Builder\Config\OrchestratorBuilderConfigInterface;
 use LDL\Orchestrator\Config\OrchestratorConfig;
 use LDL\Orchestrator\Config\OrchestratorConfigInterface;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
@@ -43,21 +45,38 @@ class OrchestratorBuilder implements OrchestratorBuilderInterface
      */
     private $compilerPassFileFinder;
 
+    /**
+     * @var array
+     */
+    private $dumpOptions;
+
     public function __construct(
         EnvFileFinderInterface $envFileFinder,
         ServiceFileFinderInterface $serviceFileFinder,
         CompilerPassFileFinderInterface $compilerPassFileFinder,
         EnvBuilderInterface $envBuilder,
-        LDLContainerBuilderInterface $containerBuilder
+        LDLContainerBuilderInterface $containerBuilder,
+        array $dumpOptions = []
     ) {
         $this->envFileFinder = $envFileFinder;
         $this->serviceFileFinder = $serviceFileFinder;
         $this->compilerPassFileFinder = $compilerPassFileFinder;
         $this->envBuilder = $envBuilder;
         $this->containerBuilder = $containerBuilder;
+        $this->dumpOptions = $dumpOptions;
     }
 
-    public function build(Directory $output, array $dumpOptions = []): OrchestratorConfigInterface
+    public function getConfig(): OrchestratorBuilderConfigInterface
+    {
+        return new OrchestratorBuilderConfig(
+          $this->envFileFinder->getOptions(),
+          $this->serviceFileFinder->getOptions(),
+          $this->compilerPassFileFinder->getOptions(),
+          $this->dumpOptions
+        );
+    }
+
+    public function build(DirectoryInterface $output): OrchestratorConfigInterface
     {
         $envFiles = $this->envFileFinder->find();
         $serviceFiles = $this->serviceFileFinder->find();
@@ -68,7 +87,7 @@ class OrchestratorBuilder implements OrchestratorBuilderInterface
                 $this->containerBuilder
                     ->build($serviceFiles, $compilerPassFiles)
             )
-        )->dump($dumpOptions);
+        )->dump($this->dumpOptions);
 
         $containerFile = $output->mkfile(
             sprintf('ldl-container-%s.php', sha1($containerContents)),

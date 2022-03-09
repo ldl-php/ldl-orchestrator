@@ -58,25 +58,18 @@ final class OrchestratorConfig implements OrchestratorConfigInterface
     //<editor-fold desc="ArrayFactoryInterface methods">
     public static function fromArray(array $data = []): OrchestratorConfigInterface
     {
-    }
-    //</editor-fold>
-
-    public static function fromJSONString(string $json): OrchestratorConfigInterface
-    {
-        $json = json_decode($json, true);
-
-        if (!array_key_exists('container', $json)) {
+        if (!array_key_exists('container', $data)) {
             throw new Exception\OrchestratorConfigSectionMissingException('No container section found');
         }
 
-        $container = $json['container'];
+        $container = $data['container'];
 
         if (!array_key_exists('file', $container)) {
             throw new Exception\OrchestratorConfigSectionMissingException('No file section found in container section');
         }
 
         try {
-            $containerFile = new File($json['container']['file']);
+            $containerFile = new File($data['container']['file']);
         } catch (FileException $e) {
             throw new Exception\OrchestratorConfigException($e->getMessage(), $e->getCode(), $e);
         }
@@ -89,11 +82,11 @@ final class OrchestratorConfig implements OrchestratorConfigInterface
             throw new Exception\OrchestratorConfigSectionMissingException('No compiler passes section found in container section');
         }
 
-        if (!array_key_exists('env', $json)) {
+        if (!array_key_exists('env', $data)) {
             throw new Exception\OrchestratorConfigSectionMissingException('No env section found');
         }
 
-        $env = $json['env'];
+        $env = $data['env'];
 
         if (!array_key_exists('file', $env)) {
             throw new Exception\OrchestratorConfigSectionMissingException('No file section found in env section');
@@ -115,8 +108,14 @@ final class OrchestratorConfig implements OrchestratorConfigInterface
             throw new Exception\OrchestratorConfigException($e->getMessage(), $e->getCode(), $e);
         }
     }
+    //</editor-fold>
 
-    public static function fromJSONFile(string $file): OrchestratorConfigInterface
+    public static function fromJsonString(string $json): OrchestratorConfigInterface
+    {
+        return self::fromArray(json_decode($json, true, 2048, \JSON_THROW_ON_ERROR));
+    }
+
+    public static function fromJsonFile(string $file): OrchestratorConfigInterface
     {
         $file = new File($file);
 
@@ -182,6 +181,12 @@ final class OrchestratorConfig implements OrchestratorConfigInterface
             ],
         ];
     }
+
+    public function write(string $path, bool $force = false): FileInterface
+    {
+        return File::create($path, json_encode($this, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT), 0644, $force);
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="\JsonSerializable methods">

@@ -1,10 +1,14 @@
 <?php
+/**
+ * Loads the container and env variables into your environment.
+ */
 
 declare(strict_types=1);
 
 namespace LDL\Orchestrator\Loader;
 
 use LDL\Env\Util\Loader\EnvLoader;
+use LDL\File\File;
 use LDL\Framework\Helper\ReflectionHelper;
 use LDL\Orchestrator\Config\OrchestratorConfig;
 use LDL\Orchestrator\Config\OrchestratorConfigInterface;
@@ -22,21 +26,22 @@ final class OrchestratorLoader implements OrchestratorLoaderInterface
      */
     private $config;
 
-    public static function fromJSONFile(string $file): OrchestratorLoaderInterface
+    public static function fromArray(array $data = [])
     {
-        $config = OrchestratorConfig::fromJSONFile($file);
+        $config = OrchestratorConfig::fromArray($data);
 
-        require_once (string) $config->getContainerFile();
-
-        $class = ReflectionHelper::fromFile((string) $config->getContainerFile());
-        $ns = array_keys($class)[0];
-        $class = sprintf('%s\\%s', $ns, $class[$ns]['class'][0]);
         $env = $config->getEnvFile();
 
         /*
          * Env compilers are not needed here, the env file is already compiled in this case
          */
         EnvLoader::loadFile($env->getPath());
+
+        require_once (string) $config->getContainerFile();
+
+        $class = ReflectionHelper::fromFile((string) $config->getContainerFile());
+        $ns = array_keys($class)[0];
+        $class = sprintf('%s\\%s', $ns, $class[$ns]['class'][0]);
 
         $instance = new self(new $class());
 
@@ -45,6 +50,16 @@ final class OrchestratorLoader implements OrchestratorLoaderInterface
         $instance->container = new $class();
 
         return $instance;
+    }
+
+    public static function fromJsonString(string $json): OrchestratorLoaderInterface
+    {
+        return self::fromArray(json_decode($json, true, 2048, \JSON_THROW_ON_ERROR));
+    }
+
+    public static function fromJsonFile(string $file): OrchestratorLoaderInterface
+    {
+        return self::fromJsonString((new File($file))->getLinesAsString());
     }
 
     public function getContainer(): ContainerInterface
