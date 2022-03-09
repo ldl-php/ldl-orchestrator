@@ -1,0 +1,45 @@
+Found env file /home/ldl/projects/ldl-orchestrator/example/Build/Application/Admin/.env ...
+Found env file /home/ldl/projects/ldl-orchestrator/example/Build/Application/User/.env ...
+Found service file /home/ldl/projects/ldl-orchestrator/example/Build/Application/Admin/services.xml ...
+Found service file /home/ldl/projects/ldl-orchestrator/example/Build/Application/User/services.xml ...
+Found service file /home/ldl/projects/ldl-orchestrator/example/Build/Framework/Services/Mailer/services.xml ...
+Found service file /home/ldl/projects/ldl-orchestrator/example/Build/Framework/Services/Template/services.xml ...
+Found compiler pass file /home/ldl/projects/ldl-orchestrator/example/Build/Framework/Application/ApplicationCompilerPass.php ...
+
+Took: 0.13 seconds
+array:4 [
+  "env" => array:4 [
+    "directories" => array:1 [
+      0 => "/home/ldl/projects/ldl-orchestrator/example/Build"
+    ]
+    "files" => array:1 [
+      0 => ".env"
+    ]
+    "excludedFiles" => []
+    "excludedDirectories" => []
+  ]
+  "service" => array:4 [
+    "directories" => array:1 [
+      0 => "/home/ldl/projects/ldl-orchestrator/example/Build"
+    ]
+    "files" => array:4 [
+      0 => "services.xml"
+      1 => "services.yml"
+      2 => "services.php"
+      3 => "services.ini"
+    ]
+    "excludedFiles" => []
+    "excludedDirectories" => []
+  ]
+  "cpass" => array:4 [
+    "directories" => array:1 [
+      0 => "/home/ldl/projects/ldl-orchestrator/example/Build"
+    ]
+    "patterns" => array:1 [
+      0 => "#^.*CompilerPass.php$#"
+    ]
+    "excludedFiles" => []
+    "excludedDirectories" => []
+  ]
+  "options" => []
+]

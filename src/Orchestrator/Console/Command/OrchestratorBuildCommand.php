@@ -114,7 +114,7 @@ class OrchestratorBuildCommand extends Command
             ]),
             new CallableCollection([
                 static function ($file) use ($output) {
-                    $output->writeln("Found service file $file ...");
+                    $output->writeln("Found env file $file ...");
                 },
             ])
         );
@@ -156,17 +156,16 @@ class OrchestratorBuildCommand extends Command
             $serviceFileFinder,
             $compilerPassFileFinder,
             $envBuilder,
-            $containerBuilder
+            $containerBuilder,
+            $options
         );
 
-        $config = $builder->build($directory, $options);
-
-        $directory->mkfile(
-            'ldl-orchestrator-config.json',
-            json_encode($config),
-            0644,
+        $builder->build($directory)->write(
+            $directory->mkpath('ldl-orchestrator-config.json'),
             (bool) $input->getOption('force')
         );
+
+        $builder->getConfig()->write($directory->mkpath('ldl-orchestrator-build-config.json'));
 
         $end = hrtime(true);
         $total = round((($end - $start) / 1e+6) / 1000, 2);
