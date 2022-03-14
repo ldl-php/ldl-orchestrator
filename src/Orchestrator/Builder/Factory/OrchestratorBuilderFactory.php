@@ -30,7 +30,8 @@ class OrchestratorBuilderFactory implements OrchestratorBuilderFactoryInterface
     public static function create(
         EnvFileFinderOptionsInterface $envFileFinderOptions,
         ServiceFileFinderOptionsInterface $serviceFileFinderOptions,
-        CompilerPassFileFinderOptionsInterface $compilerPassFileFinderOptions
+        CompilerPassFileFinderOptionsInterface $compilerPassFileFinderOptions,
+        array $dumpOptions = []
     ): OrchestratorBuilderInterface {
         $envFileFinder = new EnvFileFinder($envFileFinderOptions);
         $envCompiler = new EnvCompiler();
@@ -49,7 +50,8 @@ class OrchestratorBuilderFactory implements OrchestratorBuilderFactoryInterface
             $serviceFileFinder,
             $compilerPassFileFinder,
             $envBuilder,
-            $containerBuilder
+            $containerBuilder,
+            $dumpOptions
         );
     }
 
@@ -79,7 +81,8 @@ class OrchestratorBuilderFactory implements OrchestratorBuilderFactoryInterface
             return self::create(
                 $config->getEnvFileFinderOptions(),
                 $config->getServiceFileFinderOptions(),
-                $config->getCompilerPassFileFinderOptions()
+                $config->getCompilerPassFileFinderOptions(),
+                $config->getDumpOptions()
             );
         } catch (\Throwable $e) {
             throw new OrchestratorBuilderFactoryException('Could not create orchestrator builder from config', 0, $e);
