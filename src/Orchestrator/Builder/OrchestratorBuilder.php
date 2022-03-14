@@ -119,4 +119,34 @@ class OrchestratorBuilder implements OrchestratorBuilderInterface
             }))
         );
     }
+
+    public function getEnvFileFinder(): EnvFileFinderInterface
+    {
+        return $this->envFileFinder;
+    }
+
+    public function getServiceFileFinder(): ServiceFileFinderInterface
+    {
+        return $this->serviceFileFinder;
+    }
+
+    public function getEnvBuilder(): EnvBuilderInterface
+    {
+        return $this->envBuilder;
+    }
+
+    public function getContainerBuilder(): LDLContainerBuilderInterface
+    {
+        return $this->containerBuilder;
+    }
+
+    public function getCompilerPassFileFinder(): CompilerPassFileFinderInterface
+    {
+        return $this->compilerPassFileFinder;
+    }
+
+    public function getDumpOptions(): array
+    {
+        return $this->dumpOptions;
+    }
 }
