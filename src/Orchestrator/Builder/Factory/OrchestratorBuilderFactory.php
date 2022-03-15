@@ -11,6 +11,8 @@ use LDL\DependencyInjection\CompilerPass\Compiler\CompilerPassCompiler;
 use LDL\DependencyInjection\CompilerPass\Finder\CompilerPassFileFinder;
 use LDL\DependencyInjection\CompilerPass\Finder\Options\CompilerPassFileFinderOptionsInterface;
 use LDL\DependencyInjection\Container\Builder\LDLContainerBuilder;
+use LDL\DependencyInjection\Container\Options\ContainerDumpOptions;
+use LDL\DependencyInjection\Container\Options\ContainerDumpOptionsInterface;
 use LDL\DependencyInjection\Service\Compiler\ServiceCompiler;
 use LDL\DependencyInjection\Service\File\Finder\Options\ServiceFileFinderOptionsInterface;
 use LDL\DependencyInjection\Service\File\Finder\ServiceFileFinder;
@@ -31,7 +33,7 @@ class OrchestratorBuilderFactory implements OrchestratorBuilderFactoryInterface
         EnvFileFinderOptionsInterface $envFileFinderOptions,
         ServiceFileFinderOptionsInterface $serviceFileFinderOptions,
         CompilerPassFileFinderOptionsInterface $compilerPassFileFinderOptions,
-        array $dumpOptions = []
+        ContainerDumpOptionsInterface $dumpOptions = null
     ): OrchestratorBuilderInterface {
         $envFileFinder = new EnvFileFinder($envFileFinderOptions);
         $envCompiler = new EnvCompiler();
@@ -51,7 +53,7 @@ class OrchestratorBuilderFactory implements OrchestratorBuilderFactoryInterface
             $compilerPassFileFinder,
             $envBuilder,
             $containerBuilder,
-            $dumpOptions
+            $dumpOptions ?? new ContainerDumpOptions()
         );
     }
 

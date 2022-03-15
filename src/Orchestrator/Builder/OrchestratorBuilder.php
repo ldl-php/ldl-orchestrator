@@ -6,6 +6,9 @@ namespace LDL\Orchestrator\Builder;
 
 use LDL\DependencyInjection\CompilerPass\Finder\CompilerPassFileFinderInterface;
 use LDL\DependencyInjection\Container\Builder\LDLContainerBuilderInterface;
+use LDL\DependencyInjection\Container\Dumper\LDLContainerDumper;
+use LDL\DependencyInjection\Container\Options\ContainerDumpOptions;
+use LDL\DependencyInjection\Container\Options\ContainerDumpOptionsInterface;
 use LDL\DependencyInjection\Service\File\Finder\ServiceFileFinderInterface;
 use LDL\Env\Builder\EnvBuilderInterface;
 use LDL\Env\File\Finder\EnvFileFinderInterface;
@@ -16,7 +19,6 @@ use LDL\Orchestrator\Builder\Config\OrchestratorBuilderConfig;
 use LDL\Orchestrator\Builder\Config\OrchestratorBuilderConfigInterface;
 use LDL\Orchestrator\Config\OrchestratorConfig;
 use LDL\Orchestrator\Config\OrchestratorConfigInterface;
-use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 
 class OrchestratorBuilder implements OrchestratorBuilderInterface
 {
@@ -46,7 +48,7 @@ class OrchestratorBuilder implements OrchestratorBuilderInterface
     private $compilerPassFileFinder;
 
     /**
-     * @var array
+     * @var ContainerDumpOptionsInterface
      */
     private $dumpOptions;
 
@@ -56,14 +58,14 @@ class OrchestratorBuilder implements OrchestratorBuilderInterface
         CompilerPassFileFinderInterface $compilerPassFileFinder,
         EnvBuilderInterface $envBuilder,
         LDLContainerBuilderInterface $containerBuilder,
-        array $dumpOptions = []
+        ContainerDumpOptionsInterface $dumpOptions = null
     ) {
         $this->envFileFinder = $envFileFinder;
         $this->serviceFileFinder = $serviceFileFinder;
         $this->compilerPassFileFinder = $compilerPassFileFinder;
         $this->envBuilder = $envBuilder;
         $this->containerBuilder = $containerBuilder;
-        $this->dumpOptions = $dumpOptions;
+        $this->dumpOptions = $dumpOptions ?? new ContainerDumpOptions();
     }
 
     public function getConfig(): OrchestratorBuilderConfigInterface
@@ -82,12 +84,11 @@ class OrchestratorBuilder implements OrchestratorBuilderInterface
         $serviceFiles = $this->serviceFileFinder->find();
         $compilerPassFiles = $this->compilerPassFileFinder->find();
 
-        $containerContents = (
-            new PhpDumper(
-                $this->containerBuilder
-                    ->build($serviceFiles, $compilerPassFiles)
-            )
-        )->dump($this->dumpOptions);
+        $containerContents = LDLContainerDumper::dump(
+            LDLContainerDumper::DUMP_FORMAT_PHP,
+            $this->containerBuilder->build($serviceFiles, $compilerPassFiles),
+            $this->dumpOptions
+        );
 
         $containerFile = $output->mkfile(
             sprintf('ldl-container-%s.php', sha1($containerContents)),
@@ -145,7 +146,7 @@ class OrchestratorBuilder implements OrchestratorBuilderInterface
         return $this->compilerPassFileFinder;
     }
 
-    public function getDumpOptions(): array
+    public function getDumpOptions(): ContainerDumpOptionsInterface
     {
         return $this->dumpOptions;
     }
