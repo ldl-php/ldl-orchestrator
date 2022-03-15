@@ -6,6 +6,8 @@ namespace LDL\Orchestrator\Builder\Config;
 
 use LDL\DependencyInjection\CompilerPass\Finder\Options\CompilerPassFileFinderOptions;
 use LDL\DependencyInjection\CompilerPass\Finder\Options\CompilerPassFileFinderOptionsInterface;
+use LDL\DependencyInjection\Container\Options\ContainerDumpOptions;
+use LDL\DependencyInjection\Container\Options\ContainerDumpOptionsInterface;
 use LDL\DependencyInjection\Service\File\Finder\Options\ServiceFileFinderOptions;
 use LDL\DependencyInjection\Service\File\Finder\Options\ServiceFileFinderOptionsInterface;
 use LDL\Env\File\Finder\Options\EnvFileFinderOptions;
@@ -33,7 +35,7 @@ class OrchestratorBuilderConfig implements OrchestratorBuilderConfigInterface
     private $compilerPassFileFinderOptions;
 
     /**
-     * @var array
+     * @var ContainerDumpOptionsInterface
      */
     private $dumpOptions;
 
@@ -41,7 +43,7 @@ class OrchestratorBuilderConfig implements OrchestratorBuilderConfigInterface
         EnvFileFinderOptionsInterface $envFileFinderOptions,
         ServiceFileFinderOptionsInterface $serviceFileFinderOptions,
         CompilerPassFileFinderOptionsInterface $compilerPassFileFinderOptions,
-        array $dumpOptions = []
+        ContainerDumpOptionsInterface $dumpOptions
     ) {
         $this->envFileFinderOptions = $envFileFinderOptions;
         $this->serviceFileFinderOptions = $serviceFileFinderOptions;
@@ -58,7 +60,7 @@ class OrchestratorBuilderConfig implements OrchestratorBuilderConfigInterface
             EnvFileFinderOptions::fromArray($data['env']),
             ServiceFileFinderOptions::fromArray($data['service']),
             CompilerPassFileFinderOptions::fromArray($data['cpass']),
-            $data['options']
+            ContainerDumpOptions::fromArray($data['options'])
         );
     }
 
@@ -116,7 +118,7 @@ class OrchestratorBuilderConfig implements OrchestratorBuilderConfigInterface
         return $this->compilerPassFileFinderOptions;
     }
 
-    public function getDumpOptions(): array
+    public function getDumpOptions(): ContainerDumpOptionsInterface
     {
         return $this->dumpOptions;
     }

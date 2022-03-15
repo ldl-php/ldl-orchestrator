@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LDL\Orchestrator\Builder\Config;
 
 use LDL\DependencyInjection\CompilerPass\Finder\Options\CompilerPassFileFinderOptionsInterface;
+use LDL\DependencyInjection\Container\Options\ContainerDumpOptionsInterface;
 use LDL\DependencyInjection\Service\File\Finder\Options\ServiceFileFinderOptionsInterface;
 use LDL\Env\File\Finder\Options\EnvFileFinderOptionsInterface;
 use LDL\File\Contracts\FileInterface;
@@ -34,7 +35,7 @@ interface OrchestratorBuilderConfigInterface extends \JsonSerializable, JsonFile
     /**
      * Returns an array of container dump options.
      */
-    public function getDumpOptions(): array;
+    public function getDumpOptions(): ContainerDumpOptionsInterface;
 
     /**
      * @throws OrchestratorBuilderConfigWriteException
