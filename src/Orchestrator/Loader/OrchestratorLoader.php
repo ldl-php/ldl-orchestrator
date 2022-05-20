@@ -1,74 +1,98 @@
 <?php
-/**
- * Loads the container and env variables into your environment.
- */
 
 declare(strict_types=1);
 
 namespace LDL\Orchestrator\Loader;
 
+use LDL\DependencyInjection\Container\Dumper\LDLContainerDumper;
+use LDL\DependencyInjection\Container\Options\ContainerDumpOptions;
+use LDL\DependencyInjection\Container\Options\ContainerDumpOptionsInterface;
 use LDL\Env\Util\Loader\EnvLoader;
-use LDL\File\File;
-use LDL\Framework\Helper\ReflectionHelper;
-use LDL\Orchestrator\Config\OrchestratorConfig;
-use LDL\Orchestrator\Config\OrchestratorConfigInterface;
-use Psr\Container\ContainerInterface;
+use LDL\File\Contracts\DirectoryInterface;
+use LDL\Orchestrator\Compiler\CompiledOrchestratorInterface;
+use LDL\Orchestrator\Orchestrator;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-final class OrchestratorLoader implements OrchestratorLoaderInterface
+class OrchestratorLoader implements OrchestratorLoaderInterface
 {
     /**
-     * @var ContainerInterface
+     * @var ContainerDumpOptionsInterface
      */
-    private $container;
+    private $dumpOptions;
 
     /**
-     * @var OrchestratorConfigInterface
+     * @var string
      */
-    private $config;
+    private $envFilename;
 
-    public static function fromArray(array $data = [])
+    /**
+     * @var string
+     */
+    private $containerFilename;
+
+    public function __construct(
+        ContainerDumpOptionsInterface $dumpOptions = null,
+        string $envFilename = null,
+        string $containerFilename = null
+    ) {
+        $this->envFilename = $envFilename ?? Orchestrator::DEFAULT_CONTAINER_FILE_NAME;
+        $this->containerFilename = $containerFilename ?? Orchestrator::DEFAULT_ENV_FILE_NAME;
+        $this->dumpOptions = $dumpOptions ?? new ContainerDumpOptions();
+    }
+
+    public function load(CompiledOrchestratorInterface $compiledOrchestrator): ContainerInterface
     {
-        $config = OrchestratorConfig::fromArray($data);
+        if (!$compiledOrchestrator->getContainer()->isCompiled()) {
+            $compiledOrchestrator->getContainer()->compile();
+        }
 
-        $env = $config->getEnvFile();
+        if (count($compiledOrchestrator->getEnvLines()) > 0) {
+            EnvLoader::load($compiledOrchestrator->getEnvLines());
+        }
+
+        $code = LDLContainerDumper::dump(
+            LDLContainerDumper::DUMP_FORMAT_PHP_EVAL,
+            $compiledOrchestrator->getContainer(),
+            $this->dumpOptions
+        );
 
         /*
-         * Env compilers are not needed here, the env file is already compiled in this case
+         * I don't even like it, but arguably requiring a container file is the same, plus we don't want to create
+         * a file in this particular case.
          */
-        EnvLoader::loadFile($env->getPath());
+        eval($code);
 
-        require_once (string) $config->getContainerFile();
+        $class = sprintf('%s\\%s', $this->dumpOptions->getNamespace(), $this->dumpOptions->getClass());
 
-        $class = ReflectionHelper::fromFile((string) $config->getContainerFile());
-        $ns = array_keys($class)[0];
-        $class = sprintf('%s\\%s', $ns, $class[$ns]['class'][0]);
-
-        $instance = new self(new $class());
-
-        $instance->config = $config;
-
-        $instance->container = new $class();
-
-        return $instance;
+        return new $class();
     }
 
-    public static function fromJsonString(string $json): OrchestratorLoaderInterface
+    public function loadDirectory(DirectoryInterface $directory): ContainerInterface
     {
-        return self::fromArray(json_decode($json, true, 2048, \JSON_THROW_ON_ERROR));
-    }
+        $containerFilename = $containerFilename ?? $this->containerFilename;
+        $envFilename = $envFilename ?? $this->envFilename;
 
-    public static function fromJsonFile(string $file): OrchestratorLoaderInterface
-    {
-        return self::fromJsonString((new File($file))->getLinesAsString());
-    }
+        $class = sprintf('%s\\%s', $this->dumpOptions->getNamespace(), $this->dumpOptions->getClass());
 
-    public function getContainer(): ContainerInterface
-    {
-        return $this->container;
-    }
+        $envPath = $directory->mkpath($envFilename);
 
-    public function getConfig(): OrchestratorConfigInterface
-    {
-        return $this->config;
+        if (file_exists($envPath)) {
+            EnvLoader::loadFile($envPath);
+        }
+
+        $containerFile = $directory->mkpath($containerFilename);
+
+        if (!file_exists($containerFile)) {
+            throw new Exception\OrchestratorLoaderException("Could not find file $containerFile");
+        }
+
+        require_once $containerFile;
+
+        if (!class_exists($class)) {
+            $msg = "Class $class does not exists after loading container file";
+            throw new Exception\OrchestratorLoaderException($msg);
+        }
+
+        return new $class();
     }
 }
