@@ -21,8 +21,8 @@ use LDL\File\Exception\FileExistsException;
 use LDL\File\File;
 use LDL\File\Helper\FilePathHelper;
 use LDL\Framework\Base\Collection\CallableCollection;
-use LDL\Orchestrator\Builder\OrchestratorBuilder;
-use LDL\Orchestrator\Builder\OrchestratorBuilderInterface;
+use LDL\Orchestrator\Orchestrator;
+use LDL\Orchestrator\OrchestratorInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -34,17 +34,9 @@ class OrchestratorBuildCommand extends Command
 {
     public const COMMAND_NAME = 'ldl:orchestrator:build';
 
-    /**
-     * @var OrchestratorBuilderInterface
-     */
-    private $orchestratorBuilder;
-
-    public function __construct(
-        ?string $name = null,
-        OrchestratorBuilderInterface $orchestratorBuilder = null
-    ) {
+    public function __construct(OrchestratorInterface $orchestrator, string $name = null)
+    {
         parent::__construct($name ?? self::COMMAND_NAME);
-        $this->orchestratorBuilder = $orchestratorBuilder;
     }
 
     public function configure(): void
@@ -79,7 +71,7 @@ class OrchestratorBuildCommand extends Command
         );
     }
 
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $start = hrtime(true);
 
@@ -151,7 +143,7 @@ class OrchestratorBuildCommand extends Command
             new CompilerPassCompiler()
         );
 
-        $builder = new OrchestratorBuilder(
+        $orchestrator = new Orchestrator(
             $envFileFinder,
             $serviceFileFinder,
             $compilerPassFileFinder,
@@ -160,12 +152,7 @@ class OrchestratorBuildCommand extends Command
             $options
         );
 
-        $builder->build($directory)->write(
-            $directory->mkpath('ldl-orchestrator-config.json'),
-            (bool) $input->getOption('force')
-        );
-
-        $builder->getConfig()->write($directory->mkpath('ldl-orchestrator-build-config.json'));
+        $orchestrator->dump($directory);
 
         $end = hrtime(true);
         $total = round((($end - $start) / 1e+6) / 1000, 2);

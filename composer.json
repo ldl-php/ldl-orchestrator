@@ -19,7 +19,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.3",
         "ldl-framework/container-builder": "dev-master",
         "ldl-framework/env-builder": "dev-master",
         "ext-json": "*"

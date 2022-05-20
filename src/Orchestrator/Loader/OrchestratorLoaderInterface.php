@@ -4,15 +4,22 @@ declare(strict_types=1);
 
 namespace LDL\Orchestrator\Loader;
 
-use LDL\Framework\Base\Contracts\ArrayFactoryInterface;
-use LDL\Framework\Base\Contracts\JsonFactoryInterface;
-use LDL\Framework\Base\Contracts\JsonFileFactoryInterface;
-use LDL\Orchestrator\Config\OrchestratorConfigInterface;
-use Psr\Container\ContainerInterface;
+use LDL\File\Contracts\DirectoryInterface;
+use LDL\Orchestrator\Compiler\CompiledOrchestratorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-interface OrchestratorLoaderInterface extends JsonFileFactoryInterface, JsonFactoryInterface, ArrayFactoryInterface
+interface OrchestratorLoaderInterface
 {
-    public function getContainer(): ContainerInterface;
+    /**
+     * Loads a compiled orchestrator in memory, useful when dependencies are not yet set in stone
+     * (when you are developing).
+     *
+     * NOTE: This method must never be used on a productive environment, use self::loadDirectory instead
+     */
+    public function load(CompiledOrchestratorInterface $compiledOrchestrator): ContainerInterface;
 
-    public function getConfig(): OrchestratorConfigInterface;
+    /**
+     * Loads a compiled orchestrator from files.
+     */
+    public function loadDirectory(DirectoryInterface $directory): ContainerInterface;
 }

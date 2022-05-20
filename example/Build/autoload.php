@@ -9,6 +9,7 @@ spl_autoload_register(static function ($className) {
 
     $file = FilePathHelper::createAbsolutePath(
         __DIR__,
+        '..',
         sprintf('%s.php', str_replace('\\', DIRECTORY_SEPARATOR, $className))
     );
 
