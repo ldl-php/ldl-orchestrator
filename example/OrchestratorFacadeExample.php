@@ -16,13 +16,13 @@ use LDL\Type\Collection\Types\String\StringCollection;
 
 $loader = new OrchestratorLoader();
 
-$container = $loader->load(OrchestratorCompiler::compile(
-    new OrchestratorCollection([
-        OrchestratorFacade::fromDirectory(new DirectoryCollection([
-            new Directory(FilePathHelper::createAbsolutePath(__DIR__, 'Build')),
-        ]), new StringCollection(['services.xml'])),
-    ])
-));
+$orchestrators = new OrchestratorCollection([
+    OrchestratorFacade::fromDirectory(new DirectoryCollection([
+        new Directory(FilePathHelper::createAbsolutePath(__DIR__, 'Build')),
+    ]), new StringCollection(['services.xml'])),
+]);
+
+$container = $loader->load((new OrchestratorCompiler($orchestrators))->compile());
 
 echo "Check some environment variables ...\n\n";
 

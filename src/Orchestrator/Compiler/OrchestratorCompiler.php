@@ -10,14 +10,25 @@ use LDL\Framework\Helper\ArrayHelper\Exception\InvalidKeyException;
 use LDL\Orchestrator\Collection\OrchestratorCollectionInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-abstract class OrchestratorCompiler implements OrchestratorCompilerInterface
+class OrchestratorCompiler implements OrchestratorCompilerInterface
 {
-    public static function compile(OrchestratorCollectionInterface $orchestrators): CompiledOrchestratorInterface
+    /**
+     * @var OrchestratorCollectionInterface
+     */
+    private $orchestrators;
+
+    public function __construct(
+        OrchestratorCollectionInterface $orchestrators
+    ) {
+        $this->orchestrators = $orchestrators;
+    }
+
+    public function compile(): CompiledOrchestratorInterface
     {
         $envLines = new EnvLineCollection();
         $finalContainer = new ContainerBuilder();
 
-        foreach ($orchestrators as $orchestrator) {
+        foreach ($this->orchestrators as $orchestrator) {
             $envFiles = $orchestrator->getEnvFinder()->find();
             $serviceFiles = $orchestrator->getServiceFinder()->find();
             $compilerPassFiles = $orchestrator->getCompilerPassFinder()->find();
