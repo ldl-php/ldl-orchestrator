@@ -9,6 +9,7 @@ use LDL\Framework\Base\Collection\Exception\LockAppendException;
 use LDL\Framework\Helper\ArrayHelper\Exception\InvalidKeyException;
 use LDL\Orchestrator\Collection\OrchestratorCollectionInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class OrchestratorCompiler implements OrchestratorCompilerInterface
 {
@@ -23,10 +24,10 @@ class OrchestratorCompiler implements OrchestratorCompilerInterface
         $this->orchestrators = $orchestrators;
     }
 
-    public function compile(): CompiledOrchestratorInterface
+    public function compile(?ContainerInterface $container = null): CompiledOrchestratorInterface
     {
         $envLines = new EnvLineCollection();
-        $finalContainer = new ContainerBuilder();
+        $finalContainer = $container ?? new ContainerBuilder();
 
         foreach ($this->orchestrators as $orchestrator) {
             $envFiles = $orchestrator->getEnvFinder()->find();
