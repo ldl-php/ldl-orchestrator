@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LDL\Orchestrator\Compiler;
 
 use LDL\Env\Util\File\Exception\ReadEnvFileException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 interface OrchestratorCompilerInterface
 {
@@ -13,5 +14,5 @@ interface OrchestratorCompilerInterface
      *
      * @throws ReadEnvFileException
      */
-    public function compile(): CompiledOrchestratorInterface;
+    public function compile(?ContainerInterface $container): CompiledOrchestratorInterface;
 }
