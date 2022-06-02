@@ -23,7 +23,7 @@ $orchestrators = new OrchestratorCollection([
 ]);
 
 $container = $loader->load((new OrchestratorCompiler($orchestrators))->compile());
-
+var_dump(getenv('ADMIN_APPLICATION_URL'));
 echo "Check some environment variables ...\n\n";
 
 var_dump('ADMIN_APPLICATION_URL', getenv('ADMIN_APPLICATION_URL'));
@@ -34,5 +34,9 @@ echo "\nPrint out service ID's plus referenced classes ...\n\n";
 foreach ($container->getServiceIDs() as $serviceID) {
     echo sprintf('%s: %s%s', $serviceID, get_class($container->get($serviceID)), "\n");
 }
+
+echo "\nPrint out a parameter mapped to .env ...\n\n";
+
+dump($container->getParameter('admin.url'));
 
 echo "\n";

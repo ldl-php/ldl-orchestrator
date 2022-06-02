@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- fix/1202368848674808 - Orchestrator not able to resolve %env(VAR)% in services
 - fix/1202352397665057 - Make OrchestratorCompiler non-static
 - fix/1202313577014118 - Simplify orchestrator
 - fix/1201973104924655 - Use ContainerDumpOptionsInterface instead of array
