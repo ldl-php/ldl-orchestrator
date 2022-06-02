@@ -8,6 +8,7 @@ use LDL\Env\Util\Line\Collection\EnvLineCollection;
 use LDL\Framework\Base\Collection\Exception\LockAppendException;
 use LDL\Framework\Helper\ArrayHelper\Exception\InvalidKeyException;
 use LDL\Orchestrator\Collection\OrchestratorCollectionInterface;
+use LDL\Orchestrator\OrchestratorInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -29,6 +30,9 @@ class OrchestratorCompiler implements OrchestratorCompilerInterface
         $envLines = new EnvLineCollection();
         $finalContainer = $container ?? new ContainerBuilder();
 
+        /**
+         * @var OrchestratorInterface $orchestrator
+         */
         foreach ($this->orchestrators as $orchestrator) {
             $envFiles = $orchestrator->getEnvFinder()->find();
             $serviceFiles = $orchestrator->getServiceFinder()->find();
