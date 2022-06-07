@@ -14,5 +14,5 @@ interface OrchestratorBuilderInterface
      *
      * @throws ReadEnvFileException
      */
-    public function compile(?ContainerInterface $container): BuiltOrchestratorInterface;
+    public function build(?ContainerInterface $container): BuiltOrchestratorInterface;
 }

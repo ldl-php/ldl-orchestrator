@@ -1,3 +1,4 @@
+string(21) "http://localhost:3000"
 Check some environment variables ...
 
 string(21) "ADMIN_APPLICATION_URL"
@@ -12,3 +13,7 @@ LDL.example.application.admin: LDL\Example\Build\Application\Admin\Application
 LDL.example.application.user: LDL\Example\Build\Application\User\Application
 LDL.example.service.mailer: LDL\Example\Build\Framework\Services\Mailer\MailerService
 LDL.example.service.template: LDL\Example\Build\Framework\Services\Template\TemplateService
+
+Print out a parameter mapped to .env ...
+
+"http://localhost:3000"
