@@ -25,7 +25,7 @@ class OrchestratorBuilder implements OrchestratorBuilderInterface
         $this->orchestrators = $orchestrators;
     }
 
-    public function compile(?ContainerInterface $container = null): BuiltOrchestratorInterface
+    public function build(?ContainerInterface $container = null): BuiltOrchestratorInterface
     {
         $envLines = new EnvLineCollection();
         $finalContainer = $container ?? new ContainerBuilder();
