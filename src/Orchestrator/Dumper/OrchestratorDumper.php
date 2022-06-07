@@ -8,7 +8,7 @@ use LDL\DependencyInjection\Container\Dumper\LDLContainerDumper;
 use LDL\DependencyInjection\Container\Options\ContainerDumpOptionsInterface;
 use LDL\File\Contracts\DirectoryInterface;
 use LDL\Framework\Base\Exception\InvalidArgumentException;
-use LDL\Orchestrator\Compiler\CompiledOrchestratorInterface;
+use LDL\Orchestrator\Builder\BuiltOrchestratorInterface;
 use LDL\Orchestrator\Orchestrator;
 
 class OrchestratorDumper implements OrchestratorDumperInterface
@@ -45,7 +45,7 @@ class OrchestratorDumper implements OrchestratorDumperInterface
         $this->dumpOptions = $dumpOptions;
     }
 
-    public function dump(CompiledOrchestratorInterface $compiled, DirectoryInterface $output): void
+    public function dump(BuiltOrchestratorInterface $compiled, DirectoryInterface $output): void
     {
         if (LDLContainerDumper::DUMP_FORMAT_PHP_EVAL === $this->dumpFormat) {
             throw new InvalidArgumentException(sprintf('Dump format "%s" generates no files, can not dump', $this->dumpFormat));

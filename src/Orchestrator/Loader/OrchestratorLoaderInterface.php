@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace LDL\Orchestrator\Loader;
 
 use LDL\File\Contracts\DirectoryInterface;
-use LDL\Orchestrator\Compiler\CompiledOrchestratorInterface;
+use LDL\Orchestrator\Builder\BuiltOrchestratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 interface OrchestratorLoaderInterface
@@ -16,7 +16,7 @@ interface OrchestratorLoaderInterface
      *
      * NOTE: This method must never be used on a productive environment, use self::loadDirectory instead
      */
-    public function load(CompiledOrchestratorInterface $compiledOrchestrator): ContainerInterface;
+    public function load(BuiltOrchestratorInterface $compiledOrchestrator): ContainerInterface;
 
     /**
      * Loads a compiled orchestrator from files.

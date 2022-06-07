@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LDL\Orchestrator\Compiler;
+namespace LDL\Orchestrator\Builder;
 
 use LDL\Env\Util\Line\Collection\EnvLineCollection;
 use LDL\Framework\Base\Collection\Exception\LockAppendException;
@@ -12,7 +12,7 @@ use LDL\Orchestrator\OrchestratorInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class OrchestratorCompiler implements OrchestratorCompilerInterface
+class OrchestratorBuilder implements OrchestratorBuilderInterface
 {
     /**
      * @var OrchestratorCollectionInterface
@@ -25,7 +25,7 @@ class OrchestratorCompiler implements OrchestratorCompilerInterface
         $this->orchestrators = $orchestrators;
     }
 
-    public function compile(?ContainerInterface $container = null): CompiledOrchestratorInterface
+    public function compile(?ContainerInterface $container = null): BuiltOrchestratorInterface
     {
         $envLines = new EnvLineCollection();
         $finalContainer = $container ?? new ContainerBuilder();
@@ -53,6 +53,6 @@ class OrchestratorCompiler implements OrchestratorCompilerInterface
             }
         }
 
-        return new CompiledOrchestrator($finalContainer, $envLines);
+        return new BuiltOrchestrator($finalContainer, $envLines);
     }
 }

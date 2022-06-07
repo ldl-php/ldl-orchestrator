@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace LDL\Orchestrator\Compiler;
+namespace LDL\Orchestrator\Builder;
 
 use LDL\Env\Util\Line\Collection\EnvLineCollectionInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-interface CompiledOrchestratorInterface
+interface BuiltOrchestratorInterface
 {
     public function getContainer(): ContainerBuilder;
 
