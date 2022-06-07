@@ -8,8 +8,8 @@ require __DIR__.'/Build/autoload.php';
 use LDL\File\Collection\DirectoryCollection;
 use LDL\File\Directory;
 use LDL\File\Helper\FilePathHelper;
+use LDL\Orchestrator\Builder\OrchestratorBuilder;
 use LDL\Orchestrator\Collection\OrchestratorCollection;
-use LDL\Orchestrator\Compiler\OrchestratorCompiler;
 use LDL\Orchestrator\Facade\OrchestratorFacade;
 use LDL\Orchestrator\Loader\OrchestratorLoader;
 use LDL\Type\Collection\Types\String\StringCollection;
@@ -22,7 +22,7 @@ $orchestrators = new OrchestratorCollection([
     ]), new StringCollection(['services.xml'])),
 ]);
 
-$container = $loader->load((new OrchestratorCompiler($orchestrators))->compile());
+$container = $loader->load((new OrchestratorBuilder($orchestrators))->compile());
 var_dump(getenv('ADMIN_APPLICATION_URL'));
 echo "Check some environment variables ...\n\n";
 

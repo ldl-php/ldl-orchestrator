@@ -9,7 +9,7 @@ use LDL\DependencyInjection\Container\Options\ContainerDumpOptions;
 use LDL\DependencyInjection\Container\Options\ContainerDumpOptionsInterface;
 use LDL\Env\Util\Loader\EnvLoader;
 use LDL\File\Contracts\DirectoryInterface;
-use LDL\Orchestrator\Compiler\CompiledOrchestratorInterface;
+use LDL\Orchestrator\Builder\BuiltOrchestratorInterface;
 use LDL\Orchestrator\Orchestrator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -40,7 +40,7 @@ class OrchestratorLoader implements OrchestratorLoaderInterface
         $this->dumpOptions = $dumpOptions ?? new ContainerDumpOptions();
     }
 
-    public function load(CompiledOrchestratorInterface $compiledOrchestrator): ContainerInterface
+    public function load(BuiltOrchestratorInterface $compiledOrchestrator): ContainerInterface
     {
         if (!$compiledOrchestrator->getContainer()->isCompiled()) {
             $compiledOrchestrator->getContainer()->compile();
