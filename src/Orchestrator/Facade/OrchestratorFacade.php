@@ -5,19 +5,26 @@ declare(strict_types=1);
 namespace LDL\Orchestrator\Facade;
 
 use LDL\DependencyInjection\CompilerPass\Compiler\CompilerPassCompiler;
+use LDL\DependencyInjection\CompilerPass\File\CompilerPassFileCollection;
 use LDL\DependencyInjection\CompilerPass\Finder\CompilerPassFileFinder;
 use LDL\DependencyInjection\CompilerPass\Finder\Options\CompilerPassFileFinderOptions;
 use LDL\DependencyInjection\Container\Builder\LDLContainerBuilder;
 use LDL\DependencyInjection\Service\Compiler\ServiceCompiler;
 use LDL\DependencyInjection\Service\File\Finder\Options\ServiceFileFinderOptions;
 use LDL\DependencyInjection\Service\File\Finder\ServiceFileFinder;
+use LDL\DependencyInjection\Service\File\ServiceFileCollection;
 use LDL\Env\Builder\EnvBuilder;
 use LDL\Env\File\Finder\EnvFileFinder;
 use LDL\Env\File\Finder\Options\EnvFileFinderOptions;
 use LDL\Env\Util\Compiler\EnvCompiler;
+use LDL\Env\Util\File\Exception\ReadEnvFileException;
 use LDL\Env\Util\File\Parser\EnvFileParser;
 use LDL\File\Collection\Contracts\DirectoryCollectionInterface;
+use LDL\File\Collection\Contracts\FileCollectionInterface;
+use LDL\File\Collection\ReadableFileCollection;
 use LDL\Framework\Base\Collection\CallableCollectionInterface;
+use LDL\Orchestrator\Builder\BuiltOrchestrator;
+use LDL\Orchestrator\Builder\BuiltOrchestratorInterface;
 use LDL\Orchestrator\Orchestrator;
 use LDL\Orchestrator\OrchestratorInterface;
 use LDL\Type\Collection\Interfaces\Type\StringCollectionInterface;
@@ -62,6 +69,42 @@ class OrchestratorFacade
             $cpassFileFinder,
             $envBuilder,
             $containerBuilder
+        );
+    }
+
+    /**
+     * Builds an orchestrator straight from service files, this can be used when you intend to build
+     * from specific files, without any kind of directory traversing / finding.
+     *
+     * @param FileCollectionInterface     $serviceFiles
+     * @param ReadableFileCollection|null $envFiles
+     *
+     * @throws ReadEnvFileException
+     */
+    public static function fromFiles(
+        iterable $serviceFiles,
+        iterable $envFiles = null,
+        iterable $compilerPassFiles = null
+    ): BuiltOrchestratorInterface {
+        $serviceFiles = new ServiceFileCollection($serviceFiles);
+        $cpassFiles = new CompilerPassFileCollection($compilerPassFiles);
+        $envFiles = new ReadableFileCollection($envFiles);
+
+        $containerBuilder = new LDLContainerBuilder(
+            new ServiceCompiler(),
+            new CompilerPassCompiler()
+        );
+
+        $envBuilder = new EnvBuilder(
+            new EnvFileParser(null, null, null),
+            new EnvCompiler()
+        );
+
+        $containerBuilder->build($serviceFiles, $cpassFiles);
+
+        return new BuiltOrchestrator(
+            $containerBuilder->build($serviceFiles, $cpassFiles),
+            $envBuilder->build($envFiles)
         );
     }
 }

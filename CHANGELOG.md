@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- feature/1202421580425638 - Facade method to build from single files
 - feature/1202367657066623 - Add optional "start container" param to OrchestratorCompiler::compile 
 - feature/1201943740776108 - Separate OrchestratorBuilder config from main OrchestratorConfig
 - feature/1201611356837883 - Integrate ldl-env-builder + ldl-container-builder
