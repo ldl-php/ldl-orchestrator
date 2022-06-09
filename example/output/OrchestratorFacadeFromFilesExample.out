@@ -1,0 +1,19 @@
+string(21) "http://localhost:3000"
+Check some environment variables ...
+
+string(21) "ADMIN_APPLICATION_URL"
+string(21) "http://localhost:3000"
+string(20) "USER_APPLICATION_URL"
+string(21) "http://localhost:4000"
+
+Print out service ID's plus referenced classes ...
+
+service_container: LDL\DependencyInjection\ServiceContainer
+LDL.example.application.admin: LDL\Example\Build\Application\Admin\Application
+LDL.example.application.user: LDL\Example\Build\Application\User\Application
+LDL.example.service.mailer: LDL\Example\Build\Framework\Services\Mailer\MailerService
+LDL.example.service.template: LDL\Example\Build\Framework\Services\Template\TemplateService
+
+Print out a parameter mapped to .env ...
+
+"http://localhost:3000"
