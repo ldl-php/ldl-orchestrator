@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- fix/1202421899978588 - Typo fix in OrchestratorFacade::fromFiles (plus facade interface)
 - fix/1202405405914487 - Rename OrchestratorCompiler to OrchestratorBuilder
 - fix/1202368848674808 - Orchestrator not able to resolve %env(VAR)% in services
 - fix/1202352397665057 - Make OrchestratorCompiler non-static
