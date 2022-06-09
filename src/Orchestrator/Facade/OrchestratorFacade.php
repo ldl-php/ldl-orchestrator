@@ -17,10 +17,8 @@ use LDL\Env\Builder\EnvBuilder;
 use LDL\Env\File\Finder\EnvFileFinder;
 use LDL\Env\File\Finder\Options\EnvFileFinderOptions;
 use LDL\Env\Util\Compiler\EnvCompiler;
-use LDL\Env\Util\File\Exception\ReadEnvFileException;
 use LDL\Env\Util\File\Parser\EnvFileParser;
 use LDL\File\Collection\Contracts\DirectoryCollectionInterface;
-use LDL\File\Collection\Contracts\FileCollectionInterface;
 use LDL\File\Collection\ReadableFileCollection;
 use LDL\Framework\Base\Collection\CallableCollectionInterface;
 use LDL\Orchestrator\Builder\BuiltOrchestrator;
@@ -29,7 +27,7 @@ use LDL\Orchestrator\Orchestrator;
 use LDL\Orchestrator\OrchestratorInterface;
 use LDL\Type\Collection\Interfaces\Type\StringCollectionInterface;
 
-class OrchestratorFacade
+class OrchestratorFacade implements OrchestratorFacadeInterface
 {
     public static function fromDirectory(
         DirectoryCollectionInterface $directories,
@@ -72,15 +70,6 @@ class OrchestratorFacade
         );
     }
 
-    /**
-     * Builds an orchestrator straight from service files, this can be used when you intend to build
-     * from specific files, without any kind of directory traversing / finding.
-     *
-     * @param FileCollectionInterface     $serviceFiles
-     * @param ReadableFileCollection|null $envFiles
-     *
-     * @throws ReadEnvFileException
-     */
     public static function fromFiles(
         iterable $serviceFiles,
         iterable $envFiles = null,
