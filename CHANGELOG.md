@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- fix/1202436361491329 - Default orchestrator loader arguments are incorrect
 - fix/1202435910307917 - Invalid usage of variables on OrchestratorLoader::loadDirectory
 - fix/1202421899978588 - Typo fix in OrchestratorFacade::fromFiles (plus facade interface)
 - fix/1202405405914487 - Rename OrchestratorCompiler to OrchestratorBuilder
