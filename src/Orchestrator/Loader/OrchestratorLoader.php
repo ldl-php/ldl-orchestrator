@@ -35,8 +35,8 @@ class OrchestratorLoader implements OrchestratorLoaderInterface
         string $envFilename = null,
         string $containerFilename = null
     ) {
-        $this->envFilename = $envFilename ?? Orchestrator::DEFAULT_CONTAINER_FILE_NAME;
-        $this->containerFilename = $containerFilename ?? Orchestrator::DEFAULT_ENV_FILE_NAME;
+        $this->envFilename = $envFilename ?? Orchestrator::DEFAULT_ENV_FILE_NAME;
+        $this->containerFilename = $containerFilename ?? Orchestrator::DEFAULT_CONTAINER_FILE_NAME;
         $this->dumpOptions = $dumpOptions ?? new ContainerDumpOptions();
     }
 
