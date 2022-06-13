@@ -69,8 +69,8 @@ class OrchestratorLoader implements OrchestratorLoaderInterface
 
     public function loadDirectory(DirectoryInterface $directory): ContainerInterface
     {
-        $containerFilename = $containerFilename ?? $this->containerFilename;
-        $envFilename = $envFilename ?? $this->envFilename;
+        $containerFilename = $this->containerFilename;
+        $envFilename = $this->envFilename;
 
         $class = sprintf('%s\\%s', $this->dumpOptions->getNamespace(), $this->dumpOptions->getClass());
 
